@@ -52,7 +52,7 @@ def main(image_files):
 
 
 if __name__ == "__main__":
-    files = glob("/Users/weijiechen/Desktop/Personal/Personal_Python_files/IntroToAI/PetImages/*/*")
+    files = glob("./dataset/*/*")
     means, stds = main(files)
     print("means :", means)
     print("stds :", stds)

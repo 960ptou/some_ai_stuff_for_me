@@ -28,7 +28,7 @@ transform = transforms.Compose([
     transforms.Normalize(cat_dog_mean, cat_dog_std),
 ])
 
-data_dir = "/Users/weijiechen/Desktop/Personal/Personal_Python_files/IntroToAI/PetImages"
+data_dir = "./data"
 batch_size = 16
 epochs = 1
 
