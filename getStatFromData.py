@@ -6,19 +6,29 @@ from glob import glob
 from tqdm import tqdm
 from PIL import Image
 import os
-
+from testing_model1 import transform
+import matplotlib.pyplot as plt
 
 def main(image_files):
     rs, gs, bs = [], [],[]
     for img in tqdm(image_files):
         
-        try:
-            image = Image.open(img)
-            exif_data = image._getexif()
-        except ValueError as err:
-            print(err)
-            print("Error on image",image)
         
+        image = Image.open(img).convert("RGB")
+        z = transform(image)
+        plt.figure()
+        plt.imshow(np.array(z.reshape(350,350,3)))
+        plt.show()
+        exit()
+        try:
+            1==1
+        
+        except Exception as err:
+            print(err)
+            print("image file", img)
+
+        continue 
+    
         
         image = cv2.imread(img)
         if image.shape[-1] != 3:
@@ -35,6 +45,7 @@ def main(image_files):
         rs.append(r.mean())
         gs.append(g.mean())
         bs.append(b.mean())
+    return 1,1
     
     r_mean = sum(rs)/len(rs)
     g_mean = sum(gs)/len(gs)
@@ -52,7 +63,8 @@ def main(image_files):
 
 
 if __name__ == "__main__":
-    files = glob("./dataset/*/*")
-    means, stds = main(files)
+    files = glob("./data/*/*")
+    #means, stds = main(files)
+    main(files)
     print("means :", means)
     print("stds :", stds)
