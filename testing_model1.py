@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader, random_split
 import torch.optim as optim
 from torch.nn.functional import one_hot
 
-from models.test_cnn_1 import TestNet1
+from models.models.test_cnn_1 import TestNet1
 from util import *
 from testing_model1_data import TestingModel1DataSet, collate_fn
 import os
@@ -33,7 +33,7 @@ transform = transforms.Compose([
     transforms.Resize((350,350)),
     transforms.ToTensor(),
     #transforms.GaussianBlur(kernel_size=(15,15), sigma=(0.1, 0.2)),
-    transforms.Normalize(cat_dog_mean, cat_dog_std),
+    #transforms.Normalize(cat_dog_mean, cat_dog_std),
 ])
 
 data_dir = os.path.join(".","data")
@@ -57,7 +57,7 @@ lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=1/ma
 
 model_storage_dir = os.path.join(".","models","checkpoints",str(datetime.now().strftime("%m-%d-%Y-%H-%M-%S")))
 os.mkdir(model_storage_dir)
-shutil.copy2(os.path.join(".","models","test_cnn_1.py"), os.path.join(model_storage_dir, "model.py"))
+shutil.copy2(os.path.join(".","models","models","test_cnn_1.py"), os.path.join(model_storage_dir, "model.py"))
 
 
 if __name__ == "__main__":
