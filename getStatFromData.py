@@ -16,18 +16,7 @@ def main(image_files):
         
         image = Image.open(img).convert("RGB")
         z = transform(image)
-        plt.figure()
-        plt.imshow(np.array(z.reshape(350,350,3)))
-        plt.show()
-        exit()
-        try:
-            1==1
-        
-        except Exception as err:
-            print(err)
-            print("image file", img)
 
-        continue 
     
         
         image = cv2.imread(img)
@@ -64,7 +53,7 @@ def main(image_files):
 
 if __name__ == "__main__":
     files = glob("./data/*/*")
-    #means, stds = main(files)
-    main(files)
+    means, stds = main(files)
+
     print("means :", means)
     print("stds :", stds)
