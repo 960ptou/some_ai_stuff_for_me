@@ -18,6 +18,8 @@ from time import time
 from tqdm import tqdm
 from datetime import datetime
 import shutil
+import matplotlib.pyplot as plt
+import math
 
 device = get_available_device()
 print("Device :",device)
@@ -28,15 +30,15 @@ mean = torch.tensor(cat_dog_mean).to(device).view(3,1,1)
 std  = torch.tensor(cat_dog_std).to(device).view(3,1,1)
 
 transform = transforms.Compose([
-    transforms.ToTensor(),
     transforms.Resize((350,350)),
+    transforms.ToTensor(),
     #transforms.GaussianBlur(kernel_size=(15,15), sigma=(0.1, 0.2)),
     transforms.Normalize(cat_dog_mean, cat_dog_std),
 ])
 
 data_dir = os.path.join(".","data")
 batch_size = 64
-epochs = 20
+epochs = 15
 
 test1_dataset = TestingModel1DataSet(data_dir=data_dir, transform=transform)
 train_size = int(len(test1_dataset) * 0.80)
@@ -50,8 +52,8 @@ dataloader_test = DataLoader(test_dataset, batch_size=batch_size,shuffle=False)
 net = TestNet1().to(device)
 loss_fn = nn.MSELoss()
 optimizer = optim.Adam(net.parameters(), lr = 0.002)
-#lambda_fun = lambda epoch : 1/(10 ** epoch)
-#lr_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda = lambda_fun)
+#lambda_fun = lambda epoch : 1/( 10 ** epoch)
+lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=1/math.e, patience=3, verbose=True)
 
 model_storage_dir = os.path.join(".","models","checkpoints",str(datetime.now().strftime("%m-%d-%Y-%H-%M-%S")))
 os.mkdir(model_storage_dir)
@@ -62,11 +64,12 @@ if __name__ == "__main__":
     start = time()
     print("Training Start")
     avg_loss = []
-
+    
     for epoch in range(1, epochs + 1):
         local_avg_loss = []
         print("Current Epoch:",epoch)
         print("Learn Rate:", optimizer.param_groups[0]["lr"])
+        net.train()
         for i, (X,y) in tqdm(enumerate(dataloader_train)):
             net.zero_grad()
 
@@ -79,20 +82,18 @@ if __name__ == "__main__":
             local_avg_loss.append(loss.item())
 
         avg_loss.append(sum(local_avg_loss) / len(local_avg_loss))
-        optimizer.param_groups[0]["lr"] = avg_loss[-1] * 0.001
         
 
             
         torch.save(net.state_dict(), os.path.join(model_storage_dir,f"{epoch*len(test1_dataset)}.pth"))
             
-        #if epoch % 3 == 0:
-        #    lr_scheduler.step()
+        lr_scheduler.step(avg_loss[-1])
             
         print("current avg loss:",avg_loss[-1] )
 
         
 
-
+        net.eval()
         correct = 0
         total = 0
         with torch.no_grad():
@@ -102,6 +103,8 @@ if __name__ == "__main__":
                 correct += int(sum(torch.where(predicted_class == test_y.to(device), 1 , 0)))
                 total += batch_size
             print("Accuracy", round(correct/total, 5))
-    end = time()
 
+    end = time()
     print(round( (end - start)/60, 3), "Minutes")
+    plt.plot(avg_loss)
+    plt.show()
